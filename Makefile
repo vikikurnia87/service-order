@@ -13,8 +13,8 @@ help: ## Tampilkan daftar perintah
 	@echo   make reset          - rollback semua migrasi
 	@echo   make status         - status tiap migrasi
 	@echo   make fresh          - drop semua tabel + migrate ulang
-	@echo   make seed           - jalankan semua seeder (field_type + template)
-	@echo   make seed NAME=X    - jalankan satu seeder (mis. NAME=FieldTypeSeeder)
+	@echo   make seed           - jalankan semua seeder referensi (status/priority/schedule/day/date/master_date)
+	@echo   make seed NAME=X    - jalankan satu seeder (mis. NAME=OrderStatusSeeder)
 	@echo   make fresh-seed     - fresh + seed sekaligus
 	@echo   make run            - jalankan server lokal (REST :6006 + gRPC :61006)
 	@echo   make air            - jalankan server dengan hot-reload (air)
@@ -39,7 +39,7 @@ status: ## Status tiap migrasi
 fresh: ## Drop semua tabel + migrate ulang
 	$(MIGRATE) fresh
 
-seed: ## Jalankan semua seeder (atau satu: make seed NAME=FieldTypeSeeder)
+seed: ## Jalankan semua seeder (atau satu: make seed NAME=OrderStatusSeeder)
 	$(MIGRATE) seed $(NAME)
 
 fresh-seed: ## fresh + seed sekaligus

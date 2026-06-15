@@ -1,12 +1,14 @@
-// cmd/migrate adalah CLI migrasi skema service-vendor.
+// cmd/migrate adalah CLI migrasi & seeder skema service-order.
 //
 // Usage:
 //
-//	go run ./cmd/migrate migrate    # jalankan migrasi
-//	go run ./cmd/migrate rollback   # rollback 1 batch
-//	go run ./cmd/migrate reset      # rollback semua
-//	go run ./cmd/migrate status     # status
-//	go run ./cmd/migrate fresh      # reset + migrate
+//	go run ./cmd/migrate migrate      # jalankan migrasi pending
+//	go run ./cmd/migrate rollback     # rollback 1 batch
+//	go run ./cmd/migrate reset        # rollback semua
+//	go run ./cmd/migrate status       # status tiap migrasi
+//	go run ./cmd/migrate fresh        # reset + migrate ulang
+//	go run ./cmd/migrate seed [NAME]  # semua seeder (atau satu, mis. OrderStatusSeeder)
+//	go run ./cmd/migrate fresh:seed   # fresh + seed sekaligus
 package main
 
 import (
