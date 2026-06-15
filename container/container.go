@@ -5,6 +5,8 @@ import (
 	"log/slog"
 
 	"github.com/vikikurnia87/service-order/database"
+	"github.com/vikikurnia87/service-order/repositories"
+	"github.com/vikikurnia87/service-order/services"
 
 	"github.com/uptrace/bun"
 	sucache "github.com/vikikurnia87/service-utils/cache"
@@ -28,14 +30,24 @@ type Container struct {
 
 	// Transaction helper — wrapping multi-step CUD atomik.
 	TxHelper dbutil.TransactionHelper
+
+	OrderRepo    repositories.OrderRepository
+	OrderService services.OrderService
 }
 
 func New(deps Deps) *Container {
 	db, lg := deps.DB, deps.Logger
+	txHelper := dbutil.NewTransactionHelper(db, lg)
+
+	orderRepo := repositories.NewOrderRepository(db, lg)
+	orderService := services.NewOrderService(orderRepo, txHelper, lg)
+
 	return &Container{
-		DB:       db,
-		Logger:   lg,
-		Cache:    database.GetCache(),
-		TxHelper: dbutil.NewTransactionHelper(db, lg),
+		DB:           db,
+		Logger:       lg,
+		Cache:        database.GetCache(),
+		TxHelper:     txHelper,
+		OrderRepo:    orderRepo,
+		OrderService: orderService,
 	}
 }

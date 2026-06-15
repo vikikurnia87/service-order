@@ -5,6 +5,7 @@ import (
 
 	"github.com/vikikurnia87/service-order/clients"
 	"github.com/vikikurnia87/service-order/container"
+	"github.com/vikikurnia87/service-order/handlers"
 	"github.com/vikikurnia87/service-order/middlewares"
 
 	"github.com/labstack/echo/v5"
@@ -35,7 +36,10 @@ func SetupRouter(c *container.Container, userClient *clients.UserClient) http.Ha
 // registerAPIRoutes orchestrator: group /api/v1 (auth) lalu delegasi ke registrar
 // per-entitas. Registrar ditambahkan pada Fase 1+ (order_status/priority/.../order).
 func registerAPIRoutes(e *echo.Echo, c *container.Container, userClient *clients.UserClient) {
+	orderH := handlers.NewOrderHandler(c.OrderService, c.Logger)
+
 	api := e.Group("/api/v1")
 	api.Use(middlewares.AuthMiddleware(userClient, c.Logger))
-	_ = api
+
+	registerOrderRoutes(api.Group("/order"), orderH)
 }
