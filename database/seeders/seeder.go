@@ -10,8 +10,23 @@ import (
 // Seeder = kontrak seeder generik (Name + Run).
 type Seeder = sudb.Seeder
 
-// NewDatabaseSeeder membangun runner. Seeder referensi (status/priority/schedule/
-// day/date/master_date) ditambahkan pada Fase 1.
+// NewDatabaseSeeder membangun runner dengan urutan seeder referensi.
 func NewDatabaseSeeder(db *bun.DB) *sudb.SeederRunner {
-	return sudb.NewSeederRunner(db)
+	return sudb.NewSeederRunner(db,
+		NewOrderStatusSeeder(),
+		NewOrderPrioritySeeder(),
+		NewScheduleSeeder(),
+		NewDaySeeder(),
+		NewDateSeeder(),
+		NewMasterDateSeeder(),
+	)
+}
+
+// nameSet membangun set nama untuk cek idempotensi seeder.
+func nameSet(names []string) map[string]bool {
+	m := make(map[string]bool, len(names))
+	for _, n := range names {
+		m[n] = true
+	}
+	return m
 }
