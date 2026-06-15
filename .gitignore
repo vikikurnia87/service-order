@@ -1,0 +1,17 @@
+# Env & secrets
+.env
+*.local
+
+# Build artifacts
+/bin/
+/tmp/
+*.exe
+
+# Logs
+*.log
+/logs/*.log
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
