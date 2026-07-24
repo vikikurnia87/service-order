@@ -34,8 +34,10 @@ func InitRedisDatabase(ctx context.Context, logger *slog.Logger) {
 		Namespace:       configs.RedisNamespace,
 	}, logger)
 	if err != nil {
+		// c dijamin non-nil (disabled) walau error — lihat kontrak sucache.New.
+		// Assign tetap dilakukan agar GetCache() tidak pernah nil (cegah panic
+		// saat Redis mati, mis. local dev tanpa Docker).
 		logger.ErrorContext(ctx, "Redis init failed, running without cache", slog.String("error", err.Error()))
-		return
 	}
 	client = c
 }
