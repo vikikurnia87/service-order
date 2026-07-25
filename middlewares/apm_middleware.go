@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v5"
+	"github.com/vikikurnia87/service-utils/monitoring"
 	"go.elastic.co/apm/v2"
 )
 
@@ -12,6 +13,13 @@ import (
 func APMTransactionMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c *echo.Context) error {
+			// APM off (ELASTIC_APM_SERVER_URL kosong) → skip pembuatan transaction
+			// sepenuhnya. Tanpa ini, agen Elastic tetap mencoba kirim ke endpoint
+			// default (localhost:8200) meski server tak dikonfigurasi — non-fatal
+			// tapi tak perlu (lihat docs/local-no-docker-analysis.md).
+			if !monitoring.APMEnabled {
+				return next(c)
+			}
 			req := c.Request()
 			if tx := apm.TransactionFromContext(req.Context()); tx != nil {
 				return next(c)
