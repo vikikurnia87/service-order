@@ -3,19 +3,23 @@
 Work order / inspeksi terjadwal. Detail: [README.md](README.md) dan
 [docs/service-order-plan.md](docs/service-order-plan.md).
 
-- REST `:6006` · gRPC `:61006` · DB `service_order`
+- REST `:6006` · gRPC `:6106` ⏳ · DB `service_order`
 - Module: `github.com/vikikurnia87/service-order`
 
-> **Catatan:** `GRPC_PORT=61006` menyimpang dari pola fleet (`6104`, `6105` →
-> seharusnya `6106`). Kemungkinan salah ketik. Jangan diubah diam-diam — ada
-> kemungkinan sudah dipakai di konfigurasi lain.
+> **Service ini masih dalam pembangunan.** gRPC server belum ada — port `6106`
+> baru dialokasikan di `.env`, belum dibaca kode. Saat membangunnya, ikuti pola
+> `service-vendor` (`grpcutil.NewServer` di `app/app.go`).
 
 ## Ketergantungan
 
-| Tujuan | Alamat | Untuk |
+| Tujuan | Alamat | Status |
 |---|---|---|
-| service-user | `127.0.0.1:6101` | `ValidateToken` |
-| service-procedure | `127.0.0.1:6105` | ambil procedure saat pembuatan order |
+| service-user | `127.0.0.1:6101` | ✅ jalan — `clients/userclient.go`, untuk `ValidateToken` |
+| service-procedure | `127.0.0.1:6105` | ⏳ **direncanakan** — `PROCEDURE_GRPC_ADDR` sudah di `.env`, klien belum dibuat |
+| service-vendor | `127.0.0.1:6104` | ⏳ **direncanakan** — tabel `order_vendor` sudah ada, klien belum |
+
+Snapshot procedure adalah rencana yang belum diimplementasi. Jangan menulis kode
+yang mengasumsikannya sudah tersedia — `service-procedure` pun belum serve gRPC.
 
 ## Tabel yang dimiliki
 

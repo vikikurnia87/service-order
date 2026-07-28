@@ -9,21 +9,11 @@ import (
 	"github.com/vikikurnia87/service-order/models"
 	"github.com/vikikurnia87/service-order/repositories"
 	"github.com/vikikurnia87/service-order/structs"
+	"github.com/vikikurnia87/service-order/utils"
 
 	"github.com/google/uuid"
 	"github.com/vikikurnia87/service-utils/dbutil"
 	"github.com/vikikurnia87/service-utils/monitoring"
-)
-
-var (
-	// ErrNotFound = order tidak ditemukan / bukan milik company.
-	ErrNotFound = errors.New("order not found")
-	// ErrPriorityNotFound = priority_uuid tidak dikenal.
-	ErrPriorityNotFound = errors.New("priority not found")
-	// ErrStatusNotFound = status_uuid tidak dikenal.
-	ErrStatusNotFound = errors.New("status not found")
-	// ErrCategoryNotFound = salah satu category_uuid tidak dikenal / bukan milik company.
-	ErrCategoryNotFound = errors.New("category not found")
 )
 
 type OrderService interface {
@@ -62,7 +52,7 @@ func (s *orderService) GetByID(ctx context.Context, companyUUID uuid.UUID, id in
 		return nil, err
 	}
 	if m == nil {
-		return nil, ErrNotFound
+		return nil, utils.ErrNotFound
 	}
 	return m, nil
 }
@@ -78,7 +68,7 @@ func (s *orderService) Create(ctx context.Context, companyUUID uuid.UUID, req st
 		return nil, err
 	}
 	if priorityID == 0 {
-		return nil, ErrPriorityNotFound
+		return nil, utils.ErrPriorityNotFound
 	}
 	statusID, err := s.repo.ResolveStatusID(ctx, uuid.MustParse(req.StatusUUID))
 	if err != nil {
@@ -86,7 +76,7 @@ func (s *orderService) Create(ctx context.Context, companyUUID uuid.UUID, req st
 		return nil, err
 	}
 	if statusID == 0 {
-		return nil, ErrStatusNotFound
+		return nil, utils.ErrStatusNotFound
 	}
 
 	catUUIDs := parseUUIDs(req.Categories)
@@ -96,7 +86,7 @@ func (s *orderService) Create(ctx context.Context, companyUUID uuid.UUID, req st
 		return nil, err
 	}
 	if len(catIDByUUID) != len(catUUIDs) {
-		return nil, ErrCategoryNotFound
+		return nil, utils.ErrCategoryNotFound
 	}
 
 	now := time.Now()
@@ -259,8 +249,8 @@ func strPtrOrNil(s string) *string {
 }
 
 func (s *orderService) recordErr(ctx context.Context, span *monitoring.APMSpan, msg string, err error) {
-	if errors.Is(err, ErrNotFound) || errors.Is(err, ErrPriorityNotFound) ||
-		errors.Is(err, ErrStatusNotFound) || errors.Is(err, ErrCategoryNotFound) {
+	if errors.Is(err, utils.ErrNotFound) || errors.Is(err, utils.ErrPriorityNotFound) ||
+		errors.Is(err, utils.ErrStatusNotFound) || errors.Is(err, utils.ErrCategoryNotFound) {
 		return
 	}
 	monitoring.RecordSpanError(span, monitoring.LogErrorService, monitoring.SpanLayerService, monitoring.OpRepositoryCall, err)

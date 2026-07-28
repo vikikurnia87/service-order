@@ -57,7 +57,7 @@ func (h *OrderHandler) Get(c *echo.Context) error {
 	}
 	m, err := h.svc.GetByID(ctx, auth.CompanyUUID(c), id)
 	if err != nil {
-		if errors.Is(err, services.ErrNotFound) {
+		if errors.Is(err, utils.ErrNotFound) {
 			return response.JSONBadRequest(c, "order not found")
 		}
 		return h.fail(c, span, ctx, "get order", "failed to get order", err)
@@ -86,13 +86,13 @@ func (h *OrderHandler) Create(c *echo.Context) error {
 // businessErr memetakan error bisnis ke 4xx (selain itu 500).
 func (h *OrderHandler) businessErr(c *echo.Context, span *monitoring.APMSpan, ctx context.Context, action, clientMsg string, err error) error {
 	switch {
-	case errors.Is(err, services.ErrPriorityNotFound):
+	case errors.Is(err, utils.ErrPriorityNotFound):
 		return response.JSONValidationError(c, "priority not found", nil)
-	case errors.Is(err, services.ErrStatusNotFound):
+	case errors.Is(err, utils.ErrStatusNotFound):
 		return response.JSONValidationError(c, "status not found", nil)
-	case errors.Is(err, services.ErrCategoryNotFound):
+	case errors.Is(err, utils.ErrCategoryNotFound):
 		return response.JSONValidationError(c, "category not found", nil)
-	case errors.Is(err, services.ErrNotFound):
+	case errors.Is(err, utils.ErrNotFound):
 		return response.JSONBadRequest(c, "order not found")
 	default:
 		return h.fail(c, span, ctx, action, clientMsg, err)
