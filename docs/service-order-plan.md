@@ -84,11 +84,9 @@ Referensi lintas-service (simpan **UUID saja**, enrich via gRPC/event — lihat 
 | `t_order_assign`   | id, order_assign_uuid, order_id, status, audit                                                                                                                                                                                | → t_order             | team_uuid, user_uuid                                               |
 | `t_order_vendor`   | id, order_vendor_uuid, order_id, status, audit                                                                                                                                                                                | → t_order             | vendor_uuid                                                        |
 | `t_order_comment`  | id, order_comment_uuid, order_id, name(text), status, audit                                                                                                                                                                   | → t_order             | user (created_by)                                                  |
-| `t_order_file`     | id, order_file_uuid, order_id, name, status, audit                                                                                                                                                                            | → t_order             | (file → service-media)                                             |
-| `t_order_img`      | id, order_img_uuid, order_id, name, status, audit                                                                                                                                                                             | → t_order             | (img → service-media)                                              |
 
 > **Audit:** `HOrderLogs`/`HCategoryLogs` lama **dilebur** ke `t_data_change_log` (pola AMANOS).
-> **Media:** `t_order_file`/`t_order_img` hanya simpan metadata; upload aktual ke **service-media** (pola "satu pintu" seperti vendor) — _menyusul, bukan tahap migrasi_.
+> **Media:** **tidak ada** `t_order_file`/`t_order_img` — file & gambar order memakai pola `VendorMediaHandler` (lihat `service-vendor/handlers/vendor_media_handler.go`): tanpa tabel lokal, byte diteruskan ke **service-media** via `mediaclient` dengan tag `service=service-order`, `action=Order`, `data_id=order.id`; metadata sepenuhnya milik service-media. Menyusul di Fase 6, butuh `DataChangeLogRepository`/`audit.Writer` dulu (service-order belum punya infra audit sama sekali).
 > **`period_date`** di `t_order` = kunci partisi arsip (lihat §5).
 
 ### 3.5 Urutan migrasi (dependensi FK)
@@ -100,7 +98,7 @@ order_status, order_priority, schedule, day, date, master_date
 → order_schedule → order_schedule_day
 → category
 → order (partisi, §5)
-→ order_category, order_assign, order_vendor, order_comment, order_file, order_img
+→ order_category, order_assign, order_vendor, order_comment
 → transaction_schedule
 → data_change_log
 ```
@@ -202,7 +200,7 @@ Dua job (scheduler/worker, terpisah):
 | 3 — CRUD order             | repo/service/handler; snapshot procedure via gRPC ke service-procedure                          | ⬜              |
 | 4 — Mesin jadwal           | generator okurensi                                                                              | ⬜              |
 | 5 — Arsip                  | partitioning + worker archiver (+ `_year` utk log)                                              | ⬜              |
-| 6 — Media                  | `t_order_file/img` → service-media (pola satu pintu vendor)                                     | ⬜              |
+| 6 — Media                  | `OrderMediaHandler` → service-media, tanpa tabel lokal (pola satu pintu vendor)                 | ⬜              |
 
 ---
 
@@ -214,6 +212,7 @@ Dua job (scheduler/worker, terpisah):
 4. **Partition key**: `period_date` (selaras makna "periode habis"), bukan `created_at`.
 5. **Versi Postgres**: pastikan ≥ 13/14 sebelum mengandalkan DETACH CONCURRENTLY.
 6. **`field_type` di order**: simpan label/salinan agar snapshot mandiri (tak bergantung service-procedure pasca-create).
+7. **File/gambar order**: **tidak** ada `t_order_file`/`t_order_img` — ikut pola `VendorMediaHandler` (`service-vendor`), tanpa tabel lokal, metadata sepenuhnya milik service-media. Keputusan diambil 2026-07-28.
 
 ---
 
