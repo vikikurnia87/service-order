@@ -19,9 +19,9 @@ func SetupRouter(c *container.Container, userClient *clients.UserClient) http.Ha
 	e := echo.New()
 
 	e.Use(httpmiddleware.RequestContextMiddleware())
-	e.Use(middlewares.APMTransactionMiddleware())
+	e.Use(httpmiddleware.APMTransactionMiddleware())
 	e.Use(httpmiddleware.SlogMiddleware(c.Logger))
-	e.Use(middlewares.RecoverWithAPM())
+	e.Use(httpmiddleware.RecoverWithAPM())
 
 	e.GET("/health", func(ctx *echo.Context) error {
 		return ctx.JSON(http.StatusOK, map[string]any{"status": "ok"})

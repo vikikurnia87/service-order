@@ -76,6 +76,20 @@ func (a *App) Shutdown() {
 	} else {
 		a.Logger.InfoContext(shutdownCtx, "✅ HTTP server stopped")
 	}
+
+	// OTel SDK mem-batch span dan TIDAK mem-flush sendiri saat proses berakhir
+	// (berbeda dari agen Elastic sebelumnya). Tanpa Shutdown eksplisit, span
+	// terakhir hilang tiap kali service dimatikan.
+	//
+	// InitAPM dipanggil di New(), yang kembali seketika — defer di sana akan
+	// jalan terlalu dini. Shutdown() ini yang jadi titik akhir siklus hidup
+	// nyata (dipanggil sekali dari main() tepat sebelum ia kembali secara
+	// normal), jadi ShutdownAPM dipanggil eksplisit di sini.
+	apmCtx, apmCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer apmCancel()
+	if err := monitoring.ShutdownAPM(apmCtx); err != nil {
+		a.Logger.ErrorContext(apmCtx, "gagal mem-flush trace saat shutdown", slog.String("error.message", err.Error()))
+	}
 }
 
 func (a *App) Cleanup() {
