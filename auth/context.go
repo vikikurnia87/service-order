@@ -39,6 +39,7 @@ func SetContext(c *echo.Context, resp *userv1.ValidateTokenResponse) {
 	c.Set(string(keyRoles), resp.GetRoleCodes())
 
 	ctx := context.WithValue(c.Request().Context(), common.ContextCompanyUUID, resp.GetCompanyUuid())
+	ctx = context.WithValue(ctx, common.ContextUserID, strconv.FormatInt(resp.GetUserId(), 10))
 	c.SetRequest(c.Request().WithContext(ctx))
 }
 
