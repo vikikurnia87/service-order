@@ -13,6 +13,11 @@ import (
 	userv1 "github.com/vikikurnia87/service-utils/gen/go/user/v1"
 )
 
+// TestSetContext_PropagatesCompanyUUIDAndUserID adalah guard terhadap drift:
+// kalau suatu saat SetContext berubah dan berhenti menyuntik salah satu dari
+// dua key context.Context yang dipakai monitoring.ContextLogger lintas
+// service, test ini gagal — bukan baru ketahuan lewat log yang diam-diam
+// kehilangan dimensi observability.
 func TestSetContext_PropagatesCompanyUUIDAndUserID(t *testing.T) {
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
