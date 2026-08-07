@@ -3,12 +3,14 @@
 package auth
 
 import (
+	"context"
 	"slices"
 	"strconv"
 	"strings"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v5"
+	"github.com/vikikurnia87/service-utils/common"
 	userv1 "github.com/vikikurnia87/service-utils/gen/go/user/v1"
 )
 
@@ -23,7 +25,11 @@ const (
 	keyRoles       ctxKey = "roles"
 )
 
-// SetContext menaruh hasil ValidateToken ke Echo context.
+// SetContext menaruh hasil ValidateToken ke Echo context, sekaligus menyuntik
+// company_uuid ke Go context.Context lewat common.ContextCompanyUUID supaya
+// monitoring.ContextLogger bisa membacanya untuk korelasi log/trace per-tenant.
+// Beda dari service-vendor/procedure/asset: service ini belum punya tipe key
+// privat sendiri untuk context.Context, jadi cukup satu suntikan (bukan dua).
 func SetContext(c *echo.Context, resp *userv1.ValidateTokenResponse) {
 	c.Set(string(keyUserID), resp.GetUserId())
 	c.Set(string(keyUserUUID), resp.GetUserUuid())
@@ -31,6 +37,9 @@ func SetContext(c *echo.Context, resp *userv1.ValidateTokenResponse) {
 	c.Set(string(keySystem), resp.GetSystem())
 	c.Set(string(keyPermissions), resp.GetPermissions())
 	c.Set(string(keyRoles), resp.GetRoleCodes())
+
+	ctx := context.WithValue(c.Request().Context(), common.ContextCompanyUUID, resp.GetCompanyUuid())
+	c.SetRequest(c.Request().WithContext(ctx))
 }
 
 // UserID mengembalikan id user (0 bila tidak ada).
