@@ -93,6 +93,8 @@ github.com/vikikurnia87/service-utils v0.20.0 h1:pDuR/m4vcdz8j4RLfDMRARNG4kASoGL
 github.com/vikikurnia87/service-utils v0.20.0/go.mod h1:hTOSCt8kJ2Q7oSQEVmJgwA/+M5aax1ohN52qJjtTPlU=
 github.com/vikikurnia87/service-utils v0.22.0 h1:OHC1VrXN7bNTGCAYI1FT/KdgmZydXo2Hl+93zdJXeTs=
 github.com/vikikurnia87/service-utils v0.22.0/go.mod h1:hTOSCt8kJ2Q7oSQEVmJgwA/+M5aax1ohN52qJjtTPlU=
+github.com/vikikurnia87/service-utils v0.23.0 h1:4o12kVOiw8D8VX1ZZ1zkZLhhdVBI/TNt7bbvTB6q65w=
+github.com/vikikurnia87/service-utils v0.23.0/go.mod h1:hTOSCt8kJ2Q7oSQEVmJgwA/+M5aax1ohN52qJjtTPlU=
 github.com/vmihailenco/msgpack/v5 v5.4.1 h1:cQriyiUvjTwOHg8QZaPihLWeRAAVoCpE00IUPn0Bjt8=
 github.com/vmihailenco/msgpack/v5 v5.4.1/go.mod h1:GaZTsDaehaPpQVyxrf5mtQlH+pc21PIudVV/E3rRQok=
 github.com/vmihailenco/tagparser/v2 v2.0.0 h1:y09buUbR+b5aycVFQs/g70pqKVZNBmxwAhO7/IwNM9g=
